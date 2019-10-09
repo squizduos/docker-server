@@ -21,8 +21,8 @@ $ sudo chmod +x /usr/local/bin/docker-compose
 First edit `.env` file with actual values:
 
 ```
-BASE_DOMAIN=example.com         # Base server domain, all services are hosted as subsites 
-ADMIN_EMAIL=example@gmail.com   # Admin email for getting updates from LetsEncrypt
+DOMAIN=example.com         # Base server domain, all services are hosted as subsites 
+EMAIL=example@gmail.com   # Admin email for getting updates from LetsEncrypt
 ```
 
 Then:
