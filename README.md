@@ -90,7 +90,12 @@ Web UI: http://ui.registry.example.com
 **Basic auth for subdomain**
 
 ```
-# htpasswd -c -b ./registry.htpasswd <usernane> <password>
+# htpasswd -c -b ./data/registry/auth/.htpasswd <usernane> <password>
+```
+htpasswd example:
+```
+# cat ./data/registry/auth/.htpasswd
+user:$apr1$tKcKlnKE$lNVIUcWxZPhKrZ7.u5qId/
 ```
 
 ### drone + drone-agent
