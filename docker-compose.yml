@@ -77,9 +77,9 @@ services:
       - LETSENCRYPT_HOST=ui.registry.${DOMAIN}
       - LETSENCRYPT_EMAIL=${EMAIL}
 
-  drone-server:
+  ci-server:
     image: drone/drone:0.8
-    container_name: drone-server
+    container_name: ci-server
     expose:
       - 8000
       - 9000
@@ -94,18 +94,36 @@ services:
       - LETSENCRYPT_HOST=ci.${DOMAIN}
       - LETSENCRYPT_EMAIL=${EMAIL}
 
-  drone-agent:
+  ci-agent:
     image: drone/agent:0.8
-    container_name: drone-agent
+    container_name: ci-agent
     restart: always
     depends_on:
-      - drone-server
+      - ci-server
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file: drone.env
     environment:
       - DRONE_SERVER=drone-server:9000
-
+      
+  monitor:
+    image: vimagick/cadvisor
+    container_name: monitor
+    expose:
+      - 8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: always
+    env_file: monitor.env
+    environment:
+      - VIRTUAL_HOST=monitor.${DOMAIN}
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST=monitor.${DOMAIN}
+      - LETSENCRYPT_EMAIL=${EMAIL}
+   
   watchtower:
     image: v2tec/watchtower
     container_name: watchtower

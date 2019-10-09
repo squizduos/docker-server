@@ -42,6 +42,14 @@ Then:
 
 ## Generate secret or password
 
+You can generate it manually on [passgen.ru](http://passgen.ru/) or using helloacm.com API:
+
+```
+# curl https://helloacm.com/api/random/?n=32
+```
+
+or using CLI:
+
 ```
 # cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
 ```
@@ -49,3 +57,18 @@ Then:
 ## Generate Drone secret
 
 Generate secret, then open `.drone.env` and replace DRONE_SECRET with new secret.
+
+## Services
+
+### nginx-proxy + nginx-proxy-letsencrypt
+
+### registry + registry-ui
+
+### drone + drone-agent
+
+### cadvisor
+
+
+### watchtower
+
+
