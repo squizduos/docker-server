@@ -3,25 +3,30 @@ version: '2'
 services:
   nginx-proxy:
     image: jwilder/nginx-proxy
+    container_name: nginx-proxy
     restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
+      - "./nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf:"
+      - "./html:/usr/share/nginx/html"
+      - "./vhost:/etc/nginx/vhost.d"
+      - "ssl:/etc/nginx/certs:ro"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    env_file: nginx-proxy.env
+      
+  nginx-proxy-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-letsencrypt
+    restart: always
+    volumes:
       - "./nginx/conf:/etc/nginx/conf.d:"
       - "./nginx/html:/usr/share/nginx/html"
       - "./nginx/vhost:/etc/nginx/vhost.d"
-      - "ssl:/etc/nginx/certs:ro"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-    env_file: nginx.env
-      
-  letsencrypt-nginx-proxy-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    restart: always
-    volumes:
       - "ssl:/etc/nginx/certs:rw"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    volumes_from:
+    depends_on:
       - "nginx-proxy"
 
   portainer:
@@ -45,8 +50,8 @@ services:
       - 5000
     volumes:
       - "registry:/var/lib/registry"
-      - "./registry/auth:/auth"
-      - "./registry/config:/etc/docker/registry"
+      - "./registry.htpasswd:/auth/.htpasswd"
+      - "./registry.yml:/etc/docker/registry/config.yml"
       - "ssl:/etc/nginx/certs:ro"
     restart: always
     env_file: registry.env
@@ -61,6 +66,8 @@ services:
     container_name: registry-ui
     expose:
       - 80
+    depends_on:
+      - registry
     env_file: joxit.env
     environment:
       - VIRTUAL_HOST=ui.registry.${BASE_DOMAIN}
@@ -68,9 +75,9 @@ services:
       - LETSENCRYPT_HOST=ui.registry.${BASE_DOMAIN}
       - LETSENCRYPT_EMAIL=${ADMIN_EMAIL}
 
-  drone:
+  drone-server:
     image: drone/drone:0.8
-    container_name: drone
+    container_name: drone-server
     expose:
       - 8000
       - 9000
@@ -95,15 +102,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file: drone.env
     environment:
-      - DRONE_SERVER=drone:9000
+      - DRONE_SERVER=drone-server:9000
 
   watchtower:
     image: v2tec/watchtower
     container_name: watchtower
     command: --debug
+    env_file: watchtower.env
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "${DOCKER_CONFIG}:/config.json"
     restart: always
     
 volumes:
