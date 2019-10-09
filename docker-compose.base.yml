@@ -9,11 +9,12 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - "./data/nginx/conf:/etc/nginx/conf.d"
       - "./data/nginx/html:/usr/share/nginx/html"
       - "./data/nginx/vhost:/etc/nginx/vhost.d"
       - "./data/nginx/certs:/etc/nginx/certs:ro"
       - "./data/nginx/htpasswd:/etc/nginx/htpasswd"
-      - "./nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf"
+      
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
     env_file: nginx-proxy.env
       
@@ -22,10 +23,11 @@ services:
     container_name: nginx-proxy-letsencrypt
     restart: always
     volumes:
+      - "./data/nginx/conf:/etc/nginx/conf.d"
       - "./data/nginx/html:/usr/share/nginx/html"
       - "./data/nginx/vhost:/etc/nginx/vhost.d"
       - "./data/nginx/certs:/etc/nginx/certs:rw"
-      - "./nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf"
+      
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     depends_on:
       - "nginx-proxy"

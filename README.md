@@ -68,12 +68,23 @@ Generate secret, then open `.drone.env` and replace DRONE_SECRET with new secret
 
 **Common configuration file**
 
-Default nginx-proxy config file is located at `nginx-proxy.conf`. 
+Default nginx-proxy config file is located at `data/nginx/conf/proxy.conf`. 
+
+```
+client_max_body_size 500m;
+
+
+server {
+    listen       80;
+    server_name  ${DOMAIN};
+    return       301 https://www.${DOMAIN}$request_uri;
+}
+```
 
 **Basic auth for subdomain**
 
 ```
-# cd $(docker volume inspect --format '{{ .Mountpoint }}' htpasswd)
+# cd ./data/nginx/htpasswd
 # htpasswd [-c] -b ./subdomain.domain.com <usernane> <password>
 ```
 
@@ -87,11 +98,40 @@ For example, pass password for cadvisor:
 URL: http://registry.example.com
 Web UI: http://ui.registry.example.com
 
-**Basic auth for subdomain**
+**Common configuration**
+
+Default registry config file is located at `/data/registry/config/config.yml`.
+
+```
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  delete:
+    enabled: true
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+    Access-Control-Allow-Origin: ['https://ui.registry.${DOMAIN}']
+    Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
+    Access-Control-Allow-Headers: ['Authorization']
+    Access-Control-Max-Age: [1728000]
+    Access-Control-Allow-Credentials: [true]
+    Access-Control-Expose-Headers: ['Docker-Content-Digest']
+```
+
+**Basic auth**
 
 ```
 # htpasswd -c -b ./data/registry/auth/.htpasswd <usernane> <password>
 ```
+
 htpasswd example:
 ```
 # cat ./data/registry/auth/.htpasswd
