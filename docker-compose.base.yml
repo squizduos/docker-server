@@ -16,7 +16,9 @@ services:
       - "./data/nginx/htpasswd:/etc/nginx/htpasswd"
       
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
-    env_file: nginx-proxy.env
+    env_file: 
+      -.env
+      - nginx-proxy.env
       
   nginx-proxy-letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
@@ -31,7 +33,9 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     depends_on:
       - "nginx-proxy"
-    env_file: nginx-proxy.env
+    env_file: 
+      -.env
+      - nginx-proxy.env
 
 networks:
   default:
