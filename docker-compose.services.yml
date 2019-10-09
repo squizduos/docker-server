@@ -7,7 +7,7 @@ services:
     restart: always
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "portainer:/data"
+      - "./data/portainer:portainer:/data"
     env_file: portainer.env
     environment:
      - VIRTUAL_HOST=docker.${DOMAIN}
@@ -20,7 +20,7 @@ services:
     container_name: code-server
     restart: always
     volumes:
-      - "./:/home/coder/project"
+      - "$PWD:/home/coder/project"
     environment:
      - VIRTUAL_HOST=ide.${DOMAIN}
      - VIRTUAL_PORT=8080
@@ -34,7 +34,7 @@ services:
     ports:
      - "25:25"
     volumes:
-    - "smtp:/data"
+    - "./data/smtp:/data"
     env_file: smtp.env
     environment:
       - RELAY_POSTMASTER=noreply@${DOMAIN}
@@ -46,7 +46,7 @@ services:
     image: postgres
     env_file: postgres.env
     volumes:
-       - postgres:/data/postgres
+       - ./data/postgres:/data/postgres
     expose:
       - 5432
     restart: always
@@ -56,7 +56,7 @@ services:
     image: dpage/pgadmin4
     env_file: postgres.env
     volumes:
-       - pgadmin:/root/.pgadmin
+       - ./data/pgadmin:/root/.pgadmin
     restart: always
     environment:
      - VIRTUAL_HOST=postgres.${DOMAIN}
@@ -71,9 +71,10 @@ services:
     expose:
       - 5000
     volumes:
-      - "registry:/var/lib/registry"
-      - "ssl:/etc/nginx/certs:ro"
+      - "./data/registry:/var/lib/registry"
+      - "./data/nginx/certs:/etc/nginx/certs:ro"
       - "./registry.htpasswd:/auth/.htpasswd"
+      
       - "./registry.yml:/etc/docker/registry/config.yml"
     restart: always
     env_file: registry.env
@@ -104,7 +105,7 @@ services:
       - 8000
       - 9000
     volumes:
-      - "drone:/var/lib/drone"
+      - "./data/drone:/var/lib/drone"
     restart: always
     env_file: drone.env
     environment:
