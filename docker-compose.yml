@@ -9,7 +9,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - "./nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf:"
+      - "./nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf"
       - "./html:/usr/share/nginx/html"
       - "./vhost:/etc/nginx/vhost.d"
       - "ssl:/etc/nginx/certs:ro"
@@ -68,7 +68,7 @@ services:
       - 80
     depends_on:
       - registry
-    env_file: joxit.env
+    env_file: registry.env
     environment:
       - VIRTUAL_HOST=ui.registry.${BASE_DOMAIN}
       - VIRTUAL_PORT=80

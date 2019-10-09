@@ -18,13 +18,12 @@ $ sudo chmod +x /usr/local/bin/docker-compose
 
 ## Run 
 
-First run setup.sh:
+First edit `.env` file with actual values:
 
 ```
-# bash setup.sh
+BASE_DOMAIN=example.com         # Base server domain, all services are hosted as subsites 
+ADMIN_EMAIL=example@gmail.com   # Admin email for getting updates from LetsEncrypt
 ```
-
-Then edit `.env` file with actual values.
 
 Then:
 
@@ -34,18 +33,19 @@ Then:
 ```
 
 
-## Generate htpasswd
+## Add user to registry
+
 
 ```
-# htpasswd registry/auth/htpasswd username
+# htpasswd ./registry.htpasswd <username>
 ```
 
-## Generate Drone secret
+## Generate secret or password
 
 ```
 # cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
 ```
 
-Then open `.drone.env` and replace DRONE_SECRET with new secret.
+## Generate Drone secret
 
-## Copy data
+Generate secret, then open `.drone.env` and replace DRONE_SECRET with new secret.
