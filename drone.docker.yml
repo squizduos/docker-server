@@ -1,58 +1,6 @@
 version: '3'
 
-services:    
-  portainer:
-    image: portainer/portainer:latest
-    container_name: portainer
-    restart: always
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "portainer:/data"
-    env_file: portainer.env
-    environment:
-     - VIRTUAL_HOST=docker.${DOMAIN}
-     - VIRTUAL_PORT=9000
-     - LETSENCRYPT_HOST=docker.${DOMAIN}
-     - LETSENCRYPT_EMAIL=${EMAIL}
-  
-  smtp:
-    image: turgon37/smtp-relay:latest
-    container_name: smtp
-    restart: always
-    ports:
-     - "25:25"
-    volumes:
-    - "smtp:/data"
-    env_file: smtp.env
-    environment:
-      - RELAY_POSTMASTER=noreply@${DOMAIN}
-      - RELAY_MYHOSTNAME=smtp.${DOMAIN}
-      - RELAY_MYDOMAIN=${DOMAIN}
-
-  postgres:
-    container_name: postgres
-    image: postgres
-    env_file: postgres.env
-    volumes:
-       - postgres:/data/postgres
-    expose:
-      - 5432
-    restart: always
-  
-  pgadmin:
-    container_name: pgadmin
-    image: dpage/pgadmin4
-    env_file: postgres.env
-    volumes:
-       - pgadmin:/root/.pgadmin
-    restart: always
-    environment:
-     - VIRTUAL_HOST=postgres.${DOMAIN}
-     - VIRTUAL_PORT=5050
-     - LETSENCRYPT_HOST=postgres.${DOMAIN}
-     - LETSENCRYPT_EMAIL=${EMAIL}
-
-
+services:
   registry:
     image: registry:2
     container_name: registry
@@ -142,15 +90,8 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
-    
-volumes:
-  portainer:
-  registry:
-  drone:
-  postgres:
-  pgadmin:
 
-networks:
+ networks:
   default:
     external:
       name: nginx-proxy
