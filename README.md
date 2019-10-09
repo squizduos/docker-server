@@ -18,7 +18,7 @@ $ sudo chmod +x /usr/local/bin/docker-compose
 
 ## Run 
 
-First edit `.env` file with actual values:
+First add `.env` file with actual values:
 
 ```
 DOMAIN=example.com         # Base server domain, all services are hosted as subsites 
