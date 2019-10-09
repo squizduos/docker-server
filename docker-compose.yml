@@ -50,9 +50,9 @@ services:
       - 5000
     volumes:
       - "registry:/var/lib/registry"
+      - "ssl:/etc/nginx/certs:ro"
       - "./registry.htpasswd:/auth/.htpasswd"
       - "./registry.yml:/etc/docker/registry/config.yml"
-      - "ssl:/etc/nginx/certs:ro"
     restart: always
     env_file: registry.env
     environment:
@@ -97,7 +97,7 @@ services:
     container_name: drone-agent
     restart: always
     depends_on:
-      - drone
+      - drone-server
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file: drone.env
