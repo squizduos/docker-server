@@ -42,7 +42,11 @@ Then:
 
 ## Generate secret or password
 
-You can generate it manually on [passgen.ru](http://passgen.ru/) or using helloacm.com API:
+You can generate it manually at [passgen.ru](http://passgen.ru/)
+
+![passgen.ru](https://tlgur.com/d/GYMyxeNG)
+
+or using helloacm.com API:
 
 ```
 # curl https://helloacm.com/api/random/?n=32
@@ -62,13 +66,43 @@ Generate secret, then open `.drone.env` and replace DRONE_SECRET with new secret
 
 ### nginx-proxy + nginx-proxy-letsencrypt
 
+**Common configuration file**
+
+Default nginx-proxy config file is located at `nginx-proxy.conf`. 
+
+**Basic auth for subdomain**
+
+```
+# cd $(docker volume inspect --format '{{ .Mountpoint }}' htpasswd)
+# htpasswd [-c] -b ./subdomain.domain.com <usernane> <password>
+```
+
+For example, pass password for cadvisor:
+```
+# htpasswd -c -b ./monitor.domain.com admin admin
+```
+
 ### registry + registry-ui
+
+URL: http://registry.example.com
+Web UI: http://ui.registry.example.com
+
+**Basic auth for subdomain**
+
+```
+# htpasswd -c -b ./registry.htpasswd <usernane> <password>
+```
 
 ### drone + drone-agent
 
+URL: http://ci.example.com
+Config: `drone.env`
+More: https://docs.drone.io/installation/overview/
+
 ### cadvisor
 
+URL: http://monitor.example.com
 
 ### watchtower
 
-
+Config: `watchtower.env`

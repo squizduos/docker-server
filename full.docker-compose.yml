@@ -14,6 +14,40 @@ services:
      - VIRTUAL_PORT=9000
      - LETSENCRYPT_HOST=docker.${DOMAIN}
      - LETSENCRYPT_EMAIL=${EMAIL}
+  
+  smtp:
+    image: turgon37/smtp-relay:latest
+    container_name: smtp
+    restart: always
+    ports:
+     - "25:25"
+    volumes:
+    - "smtp:/data"
+    env_file: smtp.env
+    environment:
+      - RELAY_POSTMASTER=noreply@${DOMAIN}
+      - RELAY_MYHOSTNAME=smtp.${DOMAIN}
+      - RELAY_MYDOMAIN=${DOMAIN}
+
+  
+  smtp-relay-auth:
+    image: turgon37/smtp-relay:latest
+    environment:
+      - RELAY_POSTMASTER=postmaster@example.net
+      - RELAY_MYHOSTNAME=smtp.example.net
+      - RELAY_MYDOMAIN=example.net
+      - RELAY_MYNETWORKS=127.0.0.0/8 10.0.0.0/24
+      - RELAY_HOST=0.0.0.0:25
+      - RELAY_MODE=ALLOW_SASLAUTH_NODOMAIN
+      - RELAY_LOGIN=sasl-user-login
+      - RELAY_PASSWORD=xxxxxxxxxxxx
+      - RELAY_USE_TLS=no
+      - 'RELAY_EXTRAS_SETTINGS=compatibility_level=1'
+    ports:
+      - "25:25"
+    volumes:
+      - data-smtp-relay-auth:/data
+
 
   registry:
     image: registry:2

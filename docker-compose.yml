@@ -12,6 +12,7 @@ services:
       - "html:/usr/share/nginx/html"
       - "vhost:/etc/nginx/vhost.d"
       - "ssl:/etc/nginx/certs:ro"
+      - "htpasswd:/etc/nginx/htpasswd"
       - "./nginx_proxy.conf:/etc/nginx/conf.d/nginx_proxy.conf"
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
     env_file: nginx-proxy.env
@@ -34,6 +35,7 @@ volumes:
   vhost:
   html:
   ssl:
+  htpasswd:
 
 networks:
   default:
