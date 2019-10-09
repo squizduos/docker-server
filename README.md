@@ -1,5 +1,12 @@
 # Docker + services
 
+## Install envsubst
+
+```
+$ curl -L https://github.com/a8m/envsubst/releases/download/v1.1.0/envsubst-`uname -s`-`uname -m` -o envsubst
+$ chmod +x envsubst && sudo mv envsubst /usr/local/bin
+```
+
 ## Install Docker
 
 Install Docker:
@@ -23,7 +30,11 @@ First add `.env` file with actual values:
 ```
 DOMAIN=example.com         # Base server domain, all services are hosted as subsites 
 EMAIL=example@gmail.com   # Admin email for getting updates from LetsEncrypt
+
+
 ```
+
+Then generate configurations 
 
 Then:
 
