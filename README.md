@@ -3,17 +3,15 @@
 ## Install envsubst
 
 ```
-$ curl -L https://github.com/a8m/envsubst/releases/download/v1.1.0/envsubst-`uname -s`-`uname -m` -o envsubst
-$ chmod +x envsubst && sudo mv envsubst /usr/local/bin
+$ sudo curl -L https://github.com/a8m/envsubst/releases/download/v1.1.0/envsubst-`uname -s`-`uname -m` -o /usr/local/bin/envsubst
+$ chmod +x /usr/local/bin/envsubst
 ```
 
 ## Install Docker
 
 Install Docker:
 ```
-$ curl -fsSL get.docker.com -o get-docker.sh
-$ sudo sh get-docker.sh
-$ sudo usermod -aG docker your-user
+$ curl -fsSL get.docker.com -o /tmp/get-docker.sh && sudo sh /tmp/get-docker.sh
 ```
 
 Install docker-compose:
@@ -23,55 +21,51 @@ $ sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docke
 $ sudo chmod +x /usr/local/bin/docker-compose
 ```
 
-## Run 
+Add user to `docker` group:
+
+```
+$ sudo usermod -aG docker <your-user>
+```
+
+## Gemerate secrets
+
+You can generate secrets or passwords for a few ways:
+ * manually at [passgen.ru](http://passgen.ru/)
+ * from CLI using `helloacm.com` API: `# curl https://helloacm.com/api/random/?n=32`
+ * from CLI: `# cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+
+## Run nginx
 
 First add `.env` file with actual values:
 
 ```
 DOMAIN=example.com         # Base server domain, all services are hosted as subsites 
 EMAIL=example@gmail.com   # Admin email for getting updates from LetsEncrypt
-
-
 ```
 
-Then generate configurations 
+Then make data directories:
 
-Then:
+```
+$ mkdir -p data/nginx data/smtp data/postgres data/pgadmin data/registry data/drone
+```
+
+Then run nginx:
 
 ```
 # docker network create nginx-proxy
-# docker-compose up -d <services>
+# docker-compose -f docker-compose.base.yml up -d
 ```
 
+## Run services
 
-## Add user to registry
+Before starting any service check this conviguration file and write sensitive data.
 
-
-```
-# htpasswd ./registry.htpasswd <username>
-```
-
-## Generate secret or password
-
-You can generate it manually at [passgen.ru](http://passgen.ru/)
-
-![passgen.ru](https://tlgur.com/d/GYMyxeNG)
-
-or using helloacm.com API:
+Run services:
 
 ```
-# curl https://helloacm.com/api/random/?n=32
+# docker network create nginx-proxy
+# docker-compose -f docker-compose.services.yml up -d <services>
 ```
-
-or using CLI:
-
-```
-# cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
-```
-
-## Generate Drone secret
-
-Generate secret, then open `.drone.env` and replace DRONE_SECRET with new secret.
 
 ## Services
 
@@ -79,7 +73,7 @@ Generate secret, then open `.drone.env` and replace DRONE_SECRET with new secret
 
 **Common configuration file**
 
-Default nginx-proxy config file is located at `data/nginx/conf/proxy.conf`. 
+Default nginx-proxy config file is located at `data/nginx/conf/proxy.conf`. By default, it's empty, here is a sample configuration to redirect from `example.com` to `www.example.com`:
 
 ```
 client_max_body_size 500m;
@@ -87,16 +81,18 @@ client_max_body_size 500m;
 
 server {
     listen       80;
-    server_name  ${DOMAIN};
-    return       301 https://www.${DOMAIN}$request_uri;
+    server_name  example.com;
+    return       301 https://www.example.com$request_uri;
 }
 ```
 
 **Basic auth for subdomain**
 
+You can set basic auth for any subdomain here:
+
 ```
 # cd ./data/nginx/htpasswd
-# htpasswd [-c] -b ./subdomain.domain.com <usernane> <password>
+# htpasswd [-c] -b ./subdomain.domain.com <username> <password>
 ```
 
 For example, pass password for cadvisor:
@@ -111,7 +107,7 @@ Web UI: http://ui.registry.example.com
 
 **Common configuration**
 
-Default registry config file is located at `/data/registry/config/config.yml`.
+Default registry config file is located at `/data/registry/config/config.yml`. By default, it's empty, here is a sample configuration:
 
 ```
 version: 0.1
@@ -129,7 +125,7 @@ http:
   addr: :5000
   headers:
     X-Content-Type-Options: [nosniff]
-    Access-Control-Allow-Origin: ['https://ui.registry.${DOMAIN}']
+    Access-Control-Allow-Origin: ['https://ui.registry.example.com']
     Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
     Access-Control-Allow-Headers: ['Authorization']
     Access-Control-Max-Age: [1728000]
@@ -137,8 +133,9 @@ http:
     Access-Control-Expose-Headers: ['Docker-Content-Digest']
 ```
 
-**Basic auth**
+**Private registry basic auth**
 
+Add user to private registry:
 ```
 # htpasswd -c -b ./data/registry/auth/.htpasswd <usernane> <password>
 ```
