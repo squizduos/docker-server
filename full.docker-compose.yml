@@ -29,24 +29,28 @@ services:
       - RELAY_MYHOSTNAME=smtp.${DOMAIN}
       - RELAY_MYDOMAIN=${DOMAIN}
 
-  
-  smtp-relay-auth:
-    image: turgon37/smtp-relay:latest
-    environment:
-      - RELAY_POSTMASTER=postmaster@example.net
-      - RELAY_MYHOSTNAME=smtp.example.net
-      - RELAY_MYDOMAIN=example.net
-      - RELAY_MYNETWORKS=127.0.0.0/8 10.0.0.0/24
-      - RELAY_HOST=0.0.0.0:25
-      - RELAY_MODE=ALLOW_SASLAUTH_NODOMAIN
-      - RELAY_LOGIN=sasl-user-login
-      - RELAY_PASSWORD=xxxxxxxxxxxx
-      - RELAY_USE_TLS=no
-      - 'RELAY_EXTRAS_SETTINGS=compatibility_level=1'
-    ports:
-      - "25:25"
+  postgres:
+    container_name: postgres
+    image: postgres
+    env_file: postgres.env
     volumes:
-      - data-smtp-relay-auth:/data
+       - postgres:/data/postgres
+    expose:
+      - 5432
+    restart: always
+  
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file: postgres.env
+    volumes:
+       - pgadmin:/root/.pgadmin
+    restart: always
+    environment:
+     - VIRTUAL_HOST=postgres.${DOMAIN}
+     - VIRTUAL_PORT=5050
+     - LETSENCRYPT_HOST=postgres.${DOMAIN}
+     - LETSENCRYPT_EMAIL=${EMAIL}
 
 
   registry:
@@ -143,6 +147,8 @@ volumes:
   portainer:
   registry:
   drone:
+  postgres:
+  pgadmin:
 
 networks:
   default:
