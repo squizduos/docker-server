@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+  cloud-torrent:
+    image: jpillora/cloud-torrent
+    container_name: cloud-torrent
+    expose:
+     - 3000
+    restart: unless-stopped
+    volumes:
+     - "cloud-torrent:/downloads"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cloud-torrent.rule=Host(`torrent.${DOMAIN}`)"
+      - "traefik.http.routers.cloud-torrent.middlewares=admin-auth"
+      - "traefik.http.routers.cloud-torrent.entrypoints=websecure"
+      - "traefik.http.routers.cloud-torrent.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.cloud-torrent.loadbalancer.server.port=3000"
+
+volumes:
+  cloud-torrent:
+
+networks:
+  default:
+    external:
+      name: traefik
