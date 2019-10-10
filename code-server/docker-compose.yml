@@ -2,11 +2,12 @@ version: '3'
 
 services:
    code-server:
-    image: codercom/code-server:v2
+    # image: codercom/code-server:v2
+    image: demyx/code-server:latest
     container_name: code-server
     restart: unless-stopped
     volumes:
-      - "code-server:/home/coder/project"
+      - "code-server:/home/user"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.code-server.rule=Host(`ide.${DOMAIN}`)"

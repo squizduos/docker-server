@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  freshrss:
+    image: jpillora/cloud-torrent
+    container_name: cloud-torrent
+    expose:
+     - 80
+    restart: unless-stopped
+    volumes:
+     - "freshrss:/var/www/FreshRSS/data"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cloud-torrent.rule=Host(`reader.${DOMAIN}`)"
+      - "traefik.http.routers.cloud-torrent.entrypoints=websecure"
+      - "traefik.http.routers.cloud-torrent.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.cloud-torrent.loadbalancer.server.port=80"
+
+volumes:
+  freshrss:
+
+networks:
+  default:
+    external:
+      name: traefik
