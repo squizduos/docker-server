@@ -9,7 +9,7 @@ services:
       - --providers.docker
       - --api
       # ACME Challenge
-      - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      # - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
       - --certificatesresolvers.leresolver.acme.email=${EMAIL}
       - --certificatesresolvers.leresolver.acme.storage=/acme.json
       - --certificatesresolvers.leresolver.acme.tlschallenge=true
@@ -17,7 +17,7 @@ services:
       # Dashboard
       - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.tls.certresolver=leresolver"
+      # - "traefik.http.routers.traefik.tls.certresolver=leresolver"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.middlewares=admin-auth"
       
@@ -46,7 +46,7 @@ services:
       - "traefik.http.routers.whoami.middlewares=admin-auth"
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
-      - "traefik.http.routers.whoami.tls.certresolver=leresolver"
+      # - "traefik.http.routers.whoami.tls.certresolver=leresolver"
       - "traefik.docker.network=traefik"
 
 # Dashboard (https://localhost:8080)
