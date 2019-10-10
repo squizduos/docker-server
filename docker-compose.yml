@@ -47,7 +47,8 @@ services:
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
       - "traefik.http.routers.whoami.tls.certresolver=leresolver"
-      
+      - "traefik.docker.network=traefik"
+
 # Dashboard (https://localhost:8080)
 # Route
 # Basic auth (login: user | password: password)
@@ -63,6 +64,5 @@ volumes:
   traefik:
 
 networks:
-  default:
-    external:
-      name: traefik
+  traefik:
+    external: true
