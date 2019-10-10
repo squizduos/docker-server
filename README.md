@@ -34,19 +34,33 @@ You can generate secrets or passwords for a few ways:
  * from CLI using `helloacm.com` API: `# curl https://helloacm.com/api/random/?n=32`
  * from CLI: `# cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
 
+## Generate htpasswd
+
+htpasswd string for paste to `traefik.yml` or sample config file:
+
+'''bash
+$ echo $(htpasswd -nb <USERNAME> <PASSWORD>)
+'''
+
+htpasswd string for paste to `labels` section in `docker-compose.yml`:
+
+'''bash
+$ echo $(htpasswd -nb <USERNAME> <PASSWORD>) | sed -e s/\\$/\\$\\$/g
+'''
+
 ## Run nginx
 
-First add `.env` file with actual values:
+First, set required paramters:
 
-```
-DOMAIN=example.com         # Base server domain, all services are hosted as subsites 
-EMAIL=example@gmail.com   # Admin email for getting updates from LetsEncrypt
-```
+- `DOMAIN` -- basic domain of server, all services are hosted as subsites.
+- `EMAIL` --  Email address for getting updates from LetsEncrypt
+- `ADMIN` -- Admin authorization for Traefik panel
 
-Then make data directories:
 
-```
-$ mkdir -p data/nginx data/smtp data/postgres data/pgadmin data/registry data/drone
+```bash
+$ export DOMAIN=example.com                           # Base server domain, all services are hosted as subsites 
+$ export EMAIL=example@gmail.com                      # Admin email for getting updates from LetsEncrypt
+$ export ADMIN=$(htpasswd -nb <USERNAME> <PASSWORD>)  # Admin authorization for Traefik panel
 ```
 
 Then run nginx:
