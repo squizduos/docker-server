@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  smtp:
+    image: bytemark/smtp
+    container_name: smtp
+    restart: always
+
+networks:
+  default:
+    external:
+      name: nginx-proxy

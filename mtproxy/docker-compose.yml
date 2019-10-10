@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  mtproxy:
+    image: telegrammessenger/proxy:latest
+    container_name: mtproxy
+    ports:
+     - 51820:443
+    restart: always
+    volumes:
+      - mtproxy:/data
+
+volumes:
+    mtproxy:
+      driver: local

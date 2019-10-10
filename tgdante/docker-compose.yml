@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  tgdante:
+    image: schors/tgdante2
+    container_name: tgdante
+    ports:
+     - ${PORT}:${PORT}
+    restart: unless-stopped

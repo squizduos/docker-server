@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+   code-server:
+    image: codercom/code-server:v2
+    container_name: code-server
+    restart: always
+    volumes:
+      - "code-server:/home/coder/project"
+    environment:
+      - VIRTUAL_HOST=ide.${DOMAIN}
+      - VIRTUAL_PORT=9000
+      - LETSENCRYPT_HOST=ide.${DOMAIN}
+      - LETSENCRYPT_EMAIL=${EMAIL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.code-server.rule=Host(`ide.${DOMAIN}`)"
+      - "traefik.http.routers.code-server.entrypoints=websecure"
+      - "traefik.http.routers.code-server.tls.certresolver=mytlschallenge"
+
+volumes:
+  code-server:
+     
+networks:
+  default:
+    external:
+      name: nginx-proxy

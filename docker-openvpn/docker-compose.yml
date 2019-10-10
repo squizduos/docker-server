@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  openvpn:
+    cap_add:
+     - NET_ADMIN
+    image: alekslitvinenk/openvpn
+    ports:
+     - 1194:1194/udp
+     - 8080:8080/tcp
+    restart: unless-stopped      
+    environment:
+      - VIRTUAL_HOST=vpn.${DOMAIN}
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST=vpn.${DOMAIN}
+      - LETSENCRYPT_EMAIL=${EMAIL}
+      - HOST_ADDR=$(curl -s https://api.ipify.org)
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openvpn.rule=Host(`vpn.${DOMAIN}`)"
+      - "traefik.http.routers.openvpn.entrypoints=websecure"
+      - "traefik.http.routers.openvpn.tls.certresolver=mytlschallenge"
+
+networks:
+  default:
+    external:
+      name: nginx-proxy

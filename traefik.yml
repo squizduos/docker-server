@@ -1,0 +1,33 @@
+debug: false
+checkNewVersion: true
+logLevel: ERROR
+defaultEntryPoints:
+  - https
+  - http
+web:
+  address: ':8080'
+  auth:
+    basic:
+      users:
+        - 'squizduos:$apr1$S8l7.Hrr$1Y0bOnhplo33KQtmutIh90'
+entryPoints:
+  http:
+    address: ':80'
+    redirect:
+      entryPoint: https
+  https:
+    address: ':443'
+    tls: {}
+retry: {}
+docker:
+  endpoint: 'unix:///var/run/docker.sock'
+  domain: traefik.hakase-labs.io
+  watch: true
+  exposedbydefault: false
+acme:
+  email: forbot@etlgr.com
+  storage: acme.json
+  entryPoint: https
+  OnHostRule: true
+  httpChallenge:
+    entryPoint: http

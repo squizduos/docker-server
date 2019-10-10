@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  drone-server:
+    image: drone/drone:1
+    container_name: drone-server
+    expose:
+      - 8000
+      - 9000
+    volumes:
+      - "drone:/var/lib/drone"
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.drone.rule=Host(`ci.${DOMAIN}`)"
+      - "traefik.http.routers.drone.entrypoints=websecure"
+      - "traefik.http.routers.drone.tls.certresolver=mytlschallenge"
+
+  drone-agent:
+    image: drone/agent:1
+    container_name: drone-agent
+    restart: always
+    depends_on:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_RPC_SERVER=http://drone-server:8000
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_RUNNER_CAPACITY=3
+
+volumes:
+  drone:
+     
+networks:
+  default:
+    external:
+      name: nginx-proxy

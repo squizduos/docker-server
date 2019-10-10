@@ -1,0 +1,66 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: "traefik:v2.0.0"
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker
+      - --api
+      # ACME Challenge
+      - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.leresolver.acme.email=${EMAIL}
+      - --certificatesresolvers.leresolver.acme.storage=/traefik/acme/acme.json
+      - --certificatesresolvers.leresolver.acme.tlschallenge=true
+    labels:
+      # Dashboard
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls.certresolver=leresolver"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.middlewares=authtraefik"
+      - "traefik.http.middlewares.test-auth.basicauth.users=${ADMIN}"
+      
+      # global redirect to https
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+
+      # middleware redirect
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "traefik:/acme.json"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    
+  whoami:
+    image: containous/whoami:v1.3.0
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.middlewares=auth"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=leresolver"
+      - "traefik.http.middlewares.auth.basicauth.users=${ADMIN}"
+
+# Dashboard (https://localhost:8080)
+# Route
+# Basic auth (login: user | password: password)
+# Let's Encrypt (https://whoami.docker.localhost/)
+# Global HTTP to HTTPS redirection (http://whoami.docker.localhost/)
+# Dashboard [api@internal]
+# Dashboard [api@internal] + Basic auth (login: user | password: password)
+# Dashboard [api@internal] + TLS (https://traefik.docker.localhost/)
+
+# touch acme.json; chmod 600 acme.json
+
+volumes:
+  traefik:
+
+networks:
+  traefik:
+    external: true

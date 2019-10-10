@@ -18,16 +18,6 @@ services:
     volumes:
       - "$PWD:/home/coder/project"
     env_file: ide.env
-  
-  smtp:
-    image: turgon37/smtp-relay:latest
-    container_name: smtp
-    restart: always
-    ports:
-     - "25:25"
-    volumes:
-    - "./data/smtp:/data"
-    env_file: smtp.env
 
   postgres:
     container_name: postgres
